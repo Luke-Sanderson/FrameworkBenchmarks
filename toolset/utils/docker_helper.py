@@ -347,6 +347,12 @@ class DockerHelper:
 
         ulimit = [{'name': 'nofile', 'hard': 65535, 'soft': 65535}]
 
+        # Database-specific configuration for NUMA/CPU affinity
+        cap_add = None
+        if database in ['mongodb', 'postgres']:
+            # Add SYS_NICE capability for numactl to work
+            cap_add = ['SYS_NICE']
+
         container = self.database.containers.run(
             "techempower/%s" % database,
             name="tfb-database",
@@ -355,6 +361,7 @@ class DockerHelper:
             detach=True,
             ulimits=ulimit,
             sysctls=sysctl,
+            cap_add=cap_add,
             remove=True,
             log_config={'type': None})
 
