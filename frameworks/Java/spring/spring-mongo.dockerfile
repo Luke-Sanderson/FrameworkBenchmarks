@@ -25,10 +25,13 @@ ENV JAVA_HOME=/opt/java/openjdk
 ENV PATH "${JAVA_HOME}/bin:${PATH}"
 COPY --from=jre-build /javaruntime $JAVA_HOME
 
+RUN apt-get update && apt-get install -y util-linux && rm -rf /var/lib/apt/lists/*
+
 RUN java -version
 WORKDIR /spring
 COPY --from=maven /spring/target/hello-spring-1.0-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
 
-CMD ["java", "-server", "-XX:+UseNUMA", "-XX:+UseG1GC", "-XX:+DisableExplicitGC", "-XX:+UseStringDeduplication", "-Dlogging.level.root=OFF", "-jar", "app.jar", "--spring.profiles.active=mongo"]
+# Restrict to cores 0-32 to match MongoDB socket 0
+CMD ["taskset", "-c", "0-32", "java", "-server", "-XX:+UseNUMA", "-XX:+UseG1GC", "-XX:+DisableExplicitGC", "-XX:+UseStringDeduplication", "-Dlogging.level.root=OFF", "-jar", "app.jar", "--spring.profiles.active=mongo"]
