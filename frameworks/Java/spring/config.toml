@@ -34,6 +34,7 @@ webserver = "Undertow"
 versus = "spring"
 
 [mongo]
+database_uri = "mongodb://tfb-database:27017/hello_world?maxPoolSize=512&minPoolSize=128"
 urls.db = "/db"
 urls.query = "/queries?queries="
 urls.update = "/updates?queries="
